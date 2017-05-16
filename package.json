@@ -1,0 +1,15 @@
+{
+  "name": "cliqz-extension-template",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "raureif": "^1.1.4",
+    "spanan": "^1.2.0"
+  }
+}
