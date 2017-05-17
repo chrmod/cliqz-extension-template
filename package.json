@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "raureif": "^1.1.4",
+    "raureif": "1.2.0",
     "spanan": "^1.2.0"
   }
 }
