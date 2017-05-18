@@ -11,5 +11,8 @@
   "dependencies": {
     "raureif": "1.2.0",
     "spanan": "^1.2.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0"
   }
 }
