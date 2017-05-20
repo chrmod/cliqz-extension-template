@@ -1,14 +1,18 @@
-import { expect } from "chai";
+import { expect } from 'chai';
 
-describe("Worker", function () {
+describe('Worker', function () {
   let worker;
 
   beforeEach(function () {
-    worker = new Worker("/dist/index.browser.js");
+    worker = new Worker('/dist/index.browser.js');
   });
 
-  it("sents init message to core", function (done) {
-    worker.addEventListener("message", function (ev) {
+  afterEach(function () {
+    worker.terminate();
+  });
+
+  it('sents init message to core', function (done) {
+    worker.addEventListener('message', function (ev) {
       const message = ev.data;
       try {
         expect(message).to.have.property('module').that.equal('core');
@@ -20,18 +24,26 @@ describe("Worker", function () {
     });
   });
 
-  it("respond to echo call", function (done) {
-    const testMessage = "some message";
-    worker.addEventListener("message", function (ev) {
-      worker.postMessage(testMessage);
+  it('respond to echo call', function (done) {
+    const testMessage = 'some message';
+    const udid = Math.random();
+    worker.addEventListener('message', function (ev) {
+
       try {
         const message = ev.data;
-        if (message.response === testMessage) {
+        if (message.udid === udid) {
+          expect(message).to.have.property('returnedValue').that.equal(testMessage);
           done();
         }
       } catch(e) {
         done(e);
       }
+    });
+
+    worker.postMessage({
+      udid,
+      action: 'echo',
+      args: [testMessage]
     });
   });
 })

@@ -1,4 +1,10 @@
-import Spanan from "spanan";
+import Spanan from 'spanan';
+
+const actions = {
+  echo(first, ...rest) {
+    return first;
+  },
+};
 
 const coreWrapper = new Spanan((message) => {
   postMessage({
@@ -13,8 +19,32 @@ const core = coreWrapper.createProxy();
 
 core.init();
 
+/**
+ * messages come in shape
+ *
+ * {
+ *   udid: <number>,
+ *   action: <string>,
+ *   args: <Array>
+ * }
+ *
+ */
 onmessage = function (ev) {
-  postMessage({
-    response: ev.data,
-  });
+  const message = ev.data;
+
+  if (coreWrapper.dispatch(message)) {
+    return;
+  }
+
+  if (actions.hasOwnProperty(message.action)) {
+    Promise.resolve(
+      actions[message.action](...message.args)
+    ).then((returnedValue) => {
+      postMessage({
+        udid: message.udid,
+        returnedValue,
+      });
+    });
+  }
 }
+
