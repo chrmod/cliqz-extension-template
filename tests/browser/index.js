@@ -43,6 +43,7 @@ describe('Worker', function () {
     worker.postMessage({
       udid,
       action: 'echo',
+      target: 'ext1',
       args: [testMessage]
     });
   });
