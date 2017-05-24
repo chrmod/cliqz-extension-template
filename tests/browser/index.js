@@ -8,7 +8,7 @@ describe('Worker', function () {
   });
 
   afterEach(function () {
-    worker.terminate();
+    //    worker.terminate();
   });
 
   it('sents init message to core', function (done) {
