@@ -14,7 +14,7 @@ function createDispatcher(fns, respond, matcher) {
       Promise.resolve(
         fns[msg.action](...msg.args)
       ).then((returnedValue) => {
-        respond(msg, returnedValue);
+        respond && respond(msg, returnedValue);
       });
 
       return true;
@@ -34,6 +34,8 @@ export default class {
       (message) => message.target === 'ext1',
     );
 
+    this.eventsDispatcher = createDispatcher(this.config.events);
+
     const moduleToInject = Object.keys(this.config).filter(
       prop => this.config[prop] === this.constructor.inject
     ).forEach((prop) => {
@@ -48,7 +50,6 @@ export default class {
       this[`${prop}Wrapper`] = moduleWrapper;
       this[prop] = moduleWrapper.createProxy();
     });
-    console.log(this);
   }
 
   start() {
@@ -70,6 +71,10 @@ export default class {
     const message = ev.data;
 
     if (this.coreWrapper.dispatch(message)) {
+      return;
+    }
+
+    if (this.eventsDispatcher.dispatch(message)) {
       return;
     }
 

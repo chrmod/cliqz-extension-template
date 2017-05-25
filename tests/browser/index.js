@@ -24,11 +24,31 @@ describe('Worker', function () {
     });
   });
 
-  it('respond to echo call', function (done) {
+  it('respond to event', function (done) {
+    const url = 'https://cliqz.com/';
+    const udid = Math.random();
+    worker.addEventListener('message', function (ev) {
+      try {
+        const message = ev.data;
+        if (message === url) {
+          done();
+        }
+      } catch(e) {
+        done(e);
+      }
+    });
+
+    worker.postMessage({
+      udid,
+      action: 'content:location-change',
+      args: [{ url }]
+    });
+  });
+
+  it('respond to action call', function (done) {
     const testMessage = 'some message';
     const udid = Math.random();
     worker.addEventListener('message', function (ev) {
-
       try {
         const message = ev.data;
         if (message.udid === udid) {

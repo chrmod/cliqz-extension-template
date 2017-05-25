@@ -14,8 +14,8 @@ Extension.create({
   },
 
   events: {
-    'content:location-change'(url) {
-
+    'content:location-change'({ url }) {
+      postMessage(url);
     },
   }
 });
