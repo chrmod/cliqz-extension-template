@@ -40,7 +40,7 @@ describe('Worker', function () {
 
     worker.postMessage({
       udid,
-      action: 'content:location-change',
+      event: 'content:location-change',
       args: [{ url }]
     });
   });

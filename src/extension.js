@@ -3,16 +3,25 @@ import Spanan from 'spanan';
 function createDispatcher(fns, respond, matcher) {
   return {
     dispatch(msg) {
-      if (matcher && !matcher(msg)) {
-        return false;
+      let { args, action } = msg;
+
+
+      if (matcher) {
+        const props = matcher(msg);
+        if (!props) {
+          return false;
+        }
+
+        action = props.action || action;
+        args = props.args || args;
       }
 
-      if (!fns.hasOwnProperty(msg.action)) {
+      if (!fns.hasOwnProperty(action)) {
         return false;
       }
 
       Promise.resolve(
-        fns[msg.action](...msg.args)
+        fns[action](...msg.args)
       ).then((returnedValue) => {
         respond && respond(msg, returnedValue);
       });
@@ -34,7 +43,15 @@ export default class {
       (message) => message.target === 'ext1',
     );
 
-    this.eventsDispatcher = createDispatcher(this.config.events);
+    this.eventsDispatcher = createDispatcher(this.config.events, null, (msg) => {
+      if (!msg.event) {
+        return false;
+      }
+
+      return {
+        action: msg.event,
+      };
+    });
 
     const moduleToInject = Object.keys(this.config).filter(
       prop => this.config[prop] === this.constructor.inject
