@@ -4,22 +4,19 @@ export default class {
   constructor(config) {
     this.config = config;
 
-    Spanan.export(this.config.actions,
-      (response, request) => postMessage({
+    Spanan.export(this.config.actions, {
+      respond: (response, request) => postMessage({
         udid: request.udid,
         returnedValue: response,
       }),
-      (request) => request.target === 'ext1',
-    );
+      filter: request => request.target === 'ext1',
+    });
 
-    Spanan.export(this.config.events, null, (request) => {
-      if (!request.event) {
-        return false;
-      }
-
-      return Object.assign({}, request, {
+    Spanan.export(this.config.events, {
+      filter: request => request.hasOwnProperty('event'),
+      transform: (request) => Object.assign({}, request, {
         action: request.event,
-      });
+      }),
     });
 
     const moduleToInject = Object.keys(this.config).filter(

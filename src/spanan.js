@@ -14,7 +14,7 @@ export default class extends Spanan {
   }
 
   static dispatch(message) {
-    dispatchers.some((dispatcher) => {
+    return dispatchers.some((dispatcher) => {
       try {
         return dispatcher(message);
       } catch(e) {
@@ -24,13 +24,20 @@ export default class extends Spanan {
   }
 
   static export(
-    actions,
-    respond = (res, req) => {},
-    filterAndTransform = () => true
+    actions = {},
+    {
+      respond = (res, req) => {},
+      filter = () => true,
+      transform = r => r,
+    } = {},
   ) {
     const dispatch = (request) => {
-      const msg = filterAndTransform(request);
-      const { args, action } = (typeof msg === 'boolean') ? request : msg;
+
+      if (!filter) {
+        return false;
+      }
+
+      const { args, action } = transform(request);
 
       if (!actions.hasOwnProperty(action)) {
         return false;
