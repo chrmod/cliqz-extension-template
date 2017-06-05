@@ -2,49 +2,51 @@ import Spanan from 'spanan';
 
 const dispatchers = [];
 
+const addDispatcher = (dispatcher) => {
+  dispatchers.push(dispatcher);
+};
+
 export default class extends Spanan {
 
   constructor(...args) {
     super(...args);
-    this.constructor.addDispatcher(this.dispatch);
+    addDispatcher(this.dispatch);
   }
 
   static dispatch(message) {
-    dispatchers.some(dispatcher => dispatcher(message));
-  }
-
-  static addDispatcher(dispatcher) {
-    dispatchers.push(dispatcher);
-  }
-
-  static createDispatcher(fns, respond, matcher) {
-    const dispatch = (msg) => {
-      let { args, action } = msg;
-
-
-      if (matcher) {
-        const props = matcher(msg);
-        if (!props) {
-          return false;
-        }
-
-        action = props.action || action;
-        args = props.args || args;
+    dispatchers.some((dispatcher) => {
+      try {
+        return dispatcher(message);
+      } catch(e) {
+        return false;
       }
+    });
+  }
 
-      if (!fns.hasOwnProperty(action)) {
+  static export(
+    actions,
+    respond = (res, req) => {},
+    filterAndTransform = () => true
+  ) {
+    const dispatch = (request) => {
+      const msg = filterAndTransform(request);
+      const { args, action } = (typeof msg === 'boolean') ? request : msg;
+
+      if (!actions.hasOwnProperty(action)) {
         return false;
       }
 
-      Promise.resolve(
-        fns[action](...msg.args)
-      ).then((returnedValue) => {
-        respond && respond(msg, returnedValue);
-      });
+      let res = actions[action](...args);
+
+      if (!(res instanceof Promise)) {
+        res = Promise.resolve(res);
+      }
+
+      res.then((response) => respond(response, request));
 
       return true;
     };
 
-    this.addDispatcher(dispatch);
+    addDispatcher(dispatch);
   }
 }

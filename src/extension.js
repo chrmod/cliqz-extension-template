@@ -4,22 +4,22 @@ export default class {
   constructor(config) {
     this.config = config;
 
-    Spanan.createDispatcher(this.config.actions,
-      (message, returnedValue) => postMessage({
-        udid: message.udid,
-        returnedValue: returnedValue,
+    Spanan.export(this.config.actions,
+      (response, request) => postMessage({
+        udid: request.udid,
+        returnedValue: response,
       }),
-      (message) => message.target === 'ext1',
+      (request) => request.target === 'ext1',
     );
 
-    Spanan.createDispatcher(this.config.events, null, (msg) => {
-      if (!msg.event) {
+    Spanan.export(this.config.events, null, (request) => {
+      if (!request.event) {
         return false;
       }
 
-      return {
-        action: msg.event,
-      };
+      return Object.assign({}, request, {
+        action: request.event,
+      });
     });
 
     const moduleToInject = Object.keys(this.config).filter(
